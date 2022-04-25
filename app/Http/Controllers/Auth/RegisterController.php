@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\Role;
+use App\Models\RoleUser;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -52,7 +54,9 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'role',
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'username' => ['required', 'string','min:6', 'unique:users'],
         ]);
     }
 
@@ -64,10 +68,22 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+
+        $user =  User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'username'=> $data['username'],
             'password' => Hash::make($data['password']),
         ]);
+        $roleuser = RoleUser::create([
+            'role_id' => $data['role'],
+            'user_id' => $user->id,
+        ]);
+        return $user;
+    }
+
+    public function showRegistrationForm(){
+        $roles = Role::where('id', '!=' , 1)->where('id', '!=', 2)->get();
+        return view('auth.register')->with('roles',$roles);
     }
 }

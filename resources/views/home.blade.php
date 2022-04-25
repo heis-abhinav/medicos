@@ -15,6 +15,13 @@
                     @endif
 
                     {{ __('You are logged in!') }}
+                    @can('isAdmin')
+                        <h2>i am admin</h2>
+                    @elsecan('isDoctor')
+                        <h2>i am doctor</h2>
+                    @else
+                        <h2>i am patient</h2>
+                    @endcan
                 </div>
             </div>
         </div>
