@@ -3,6 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Auth;
+use App\Models\Role;
+use App\Models\RoleUser;
 use Illuminate\Http\Request;
 
 class CheckRole
@@ -16,9 +19,14 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, string $role)
     {
-        if(!request->role()->hasRole($role)){
+        // if(!$request->role()->hasRole($role)){
+        //     abort(401, 'This action is unauthorized.');
+        // }
+        $roleid = Auth::check() ? Role::where('name', $role)->pluck('id') : '';
+        $role_existence = RoleUser::where('role_id', $roleid)->where('user_id', Auth::id())->first();
+        if(is_null($role_existence)):
             abort(401, 'This action is unauthorized.');
-        }
+        endif;
         return $next($request);
     }
 }
